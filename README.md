@@ -2,7 +2,7 @@
 
 A reaction-time training game built with vanilla HTML, CSS and JavaScript (no dependencies).
 
-**Live demo:** https://madhavagg007.github.io/reflexx/
+**Live demo:** https://madhavagg007.github.io/Reflexx/
 
 ## Features
 - App shell: bottom tab navigation (Play, Stats, Trophies, Settings), XP and levels, daily goal, player profile
