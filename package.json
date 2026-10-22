@@ -1,0 +1,10 @@
+{
+  "name": "reflexx",
+  "version": "1.0.0",
+  "description": "Reaction-time training game: six modes, achievements, offline PWA.",
+  "scripts": {
+    "test": "node --test tests/core.test.js",
+    "start": "python3 -m http.server 8000"
+  },
+  "license": "MIT"
+}
