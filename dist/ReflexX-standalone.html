@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eef2f7">
+<title>ReflexX — Reaction Lab</title>
+<meta name="description" content="ReflexX: a reaction-time training game with six modes, achievements, stats and offline support.">
+<meta property="og:title" content="ReflexX — Reaction Lab">
+<meta property="og:description" content="How fast are your reflexes? Six modes, stats and achievements.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{--bg:#eef2f7;--panel:#fff;--panel2:#f5f7fa;--line:#d8e0eb;--text:#182235;--muted:#68758a;--accent:#e83e9f;--accent2:#635bff;--good:#19a875;--warn:#e5a900;--danger:#e54863;--arena:#eef2f7;--shadow:rgba(31,45,67,.10)}
+:root[data-theme=dark]{--bg:#0e1320;--panel:#161d2e;--panel2:#1b2438;--line:#27324a;--text:#e8edf7;--muted:#8d9ab3;--arena:#111828;--shadow:rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 85% 0,rgba(232,62,159,.10),transparent 30%),radial-gradient(circle at 0 75%,rgba(99,91,255,.10),transparent 32%),var(--bg);color:var(--text);min-height:100vh}
+button{font:inherit;color:inherit;border:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.app{max-width:1080px;margin:auto;padding:18px 16px 40px;padding-top:max(18px,env(safe-area-inset-top))}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{display:flex;gap:11px;align-items:center}
+.logo{width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:900;color:#fff;box-shadow:0 8px 30px rgba(99,91,255,.25)}
+.brand h1{font-size:19px;margin:0;letter-spacing:.4px}.brand small{color:var(--muted)}
+.top-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.badge{border:1px solid var(--line);background:var(--panel);padding:8px 11px;border-radius:999px;color:var(--muted);font-size:12px;box-shadow:0 3px 12px var(--shadow)}
+button.badge:active{transform:scale(.97)}
+.hero{display:grid;grid-template-columns:1.4fr .8fr;gap:14px;margin-bottom:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 45px var(--shadow);overflow:hidden}
+.intro{padding:25px}
+.eyebrow{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+h2{font-size:clamp(27px,5vw,42px);line-height:1.03;margin:9px 0 10px;letter-spacing:-1.5px}
+.intro p{color:var(--muted);max-width:600px;margin:0;line-height:1.55}
+.modes{padding:18px}.modes h3{font-size:14px;margin:0 0 12px}
+.modegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mode{background:var(--panel2);border:1px solid var(--line);padding:11px;border-radius:13px;text-align:left}
+.mode.active{border-color:rgba(232,62,159,.65);background:linear-gradient(135deg,rgba(232,62,159,.12),rgba(99,91,255,.10))}
+.mode strong{display:block;font-size:13px}.mode span{font-size:10px;color:var(--muted)}
+.game{padding:14px}
+.arena{height:370px;min-height:330px;border-radius:18px;border:1px solid var(--line);background:radial-gradient(circle at 50% 45%,rgba(99,91,255,.09),transparent 35%),var(--arena);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;transition:background .15s}
+.arena::before{content:"";position:absolute;inset:16px;border:1px dashed var(--line);border-radius:15px;pointer-events:none}
+.arena.wait{background:radial-gradient(circle,rgba(229,169,0,.14),transparent 40%),var(--arena)}
+.arena.go{background:radial-gradient(circle,rgba(25,168,117,.25),transparent 48%),var(--arena)}
+.arena.false{background:radial-gradient(circle,rgba(229,72,99,.20),transparent 48%),var(--arena)}
+.center{text-align:center;z-index:2;padding:20px}
+.signal{width:86px;height:86px;border-radius:50%;margin:0 auto 17px;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;font-size:27px;box-shadow:0 8px 24px var(--shadow)}
+.go .signal{background:var(--good);color:#fff;border-color:transparent;box-shadow:0 0 55px rgba(25,168,117,.45)}
+.wait .signal{background:var(--warn);color:#1a1402;border-color:transparent}
+.false .signal{background:var(--danger);color:#fff;border-color:transparent}
+.center h3{margin:0;font-size:24px}.center p{color:var(--muted);margin:7px 0 0;font-size:13px}
+.start{margin-top:17px;padding:13px 23px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:850;box-shadow:0 10px 28px rgba(99,91,255,.25)}
+.start:active{transform:scale(.98)}
+.hint{margin-top:10px;font-size:11px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:12px}
+.stat{padding:13px;background:var(--panel2);border:1px solid var(--line);border-radius:14px}
+.stat label{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px}
+.stat b{display:block;font-size:20px;margin-top:4px}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.section{padding:18px}.section h3{margin:0 0 12px;font-size:14px}
+.record{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.record:last-child{border:0}.record span{color:var(--muted)}
+.empty{color:var(--muted);font-size:13px;padding:8px 0}
+.tools{float:right;display:flex;gap:6px}
+.mini{background:transparent;color:var(--muted);border:1px solid var(--line);padding:6px 9px;border-radius:9px;font-size:11px}
+.insights{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ins{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px}
+.ins label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}.ins b{font-size:16px}
+.tip{color:var(--muted);font-size:12px;line-height:1.6}
+svg.spark{width:100%;height:60px;display:block;margin-top:4px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+/* Stage 4: accessibility */
+:root{--muted:#586579}:root[data-theme=dark]{--muted:#a3afc6}
+.mode:focus-visible,.arena:focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
+.mode[aria-pressed=true]{border-color:rgba(232,62,159,.65)}
+.sr{position:absolute;left:-9999px}
+#install{display:none!important}.rowbtn#install[style*=inline-block]{display:flex!important}
+/* Stage 3: premium polish */
+.card{backdrop-filter:blur(10px);border-color:color-mix(in srgb,var(--line) 70%,var(--accent2))}
+:root[data-theme=dark] .card{background:linear-gradient(180deg,#182036,#131a2b)}
+:root[data-theme=dark] .badge,:root[data-theme=dark] .mode,:root[data-theme=dark] .stat{background:var(--panel2)}
+h2{background:linear-gradient(120deg,var(--text),var(--accent2) 60%,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mode{transition:transform .15s,border-color .15s}.mode:hover{transform:translateY(-2px)}
+.signal{transition:transform .2s,background .15s}
+.go .signal{animation:pulse .9s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+#title{transition:transform .2s}.ready #title{animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.85);opacity:.4}}
+.stat b{font-variant-numeric:tabular-nums}
+.ach{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.badge-a{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;font-size:11px;color:var(--muted);filter:grayscale(1);opacity:.55;transition:.2s}
+.badge-a.on{filter:none;opacity:1;color:var(--text);border-color:var(--accent);background:linear-gradient(135deg,rgba(232,62,159,.12),rgba(99,91,255,.10))}
+.badge-a i{display:block;font-style:normal;font-size:22px;margin-bottom:3px}
+.full{grid-column:1/-1}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:720px){.ach{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.hero,.bottom{grid-template-columns:1fr}.intro{padding:21px}.arena{height:350px}.stats{grid-template-columns:repeat(2,1fr)}.mode{min-height:58px}}
+/* App shell */
+.shell{max-width:620px;margin:auto;padding:0 14px calc(96px + env(safe-area-inset-bottom))}
+.appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:11px;padding:max(12px,env(safe-area-inset-top)) 2px 12px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px)}
+.appbar .brand{flex:1}.xp{display:flex;flex-direction:column;align-items:flex-end;gap:5px}.xp b{font-size:12px;color:var(--accent2)}
+.bar{height:6px;width:86px;border-radius:9px;background:var(--line);overflow:hidden}.bar.big{width:100%;height:9px}
+.bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
+.view{display:none}.view.active{display:block;animation:fade .25s}@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chips .mode{flex:0 0 auto;border-radius:999px;padding:9px 15px;white-space:nowrap;font-size:13px}
+.chips .mode span{display:none}.arena{height:min(56vh,420px)}
+.stats{grid-template-columns:repeat(3,1fr)}.today{margin-top:12px}.today .row2{display:flex;justify-content:space-between;font-size:13px;margin-bottom:9px}
+.list{display:flex;flex-direction:column;gap:8px}
+.rowbtn,.rowin{display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 15px;background:var(--panel);border:1px solid var(--line);border-radius:14px;font-size:14px;text-align:left}
+.rowin input{background:transparent;border:0;color:var(--text);font:inherit;text-align:right;width:55%;outline:0}
+.sect{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:18px 4px 8px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:7px 10px calc(7px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+.tabbar .in{display:flex;max-width:620px;margin:auto}
+.tabbtn{flex:1;background:transparent;padding:6px 0;color:var(--muted);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px}
+.tabbtn i{font-style:normal;font-size:21px;transition:transform .2s}.tabbtn.on{color:var(--accent2);font-weight:700}.tabbtn.on i{transform:translateY(-2px) scale(1.12)}
+/* Charts, custom mode, touch */
+[hidden]{display:none!important}
+.arena{touch-action:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+.chips .mode,.start,.tabbtn{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#customPanel{margin-bottom:12px}.cust{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cust label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+.cust input,.cust select,#chartMode{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px;font:inherit;font-size:14px}
+.ctl{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:8px}
+.seg{display:flex;gap:4px}.seg button{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:12px;color:var(--muted)}
+.seg button.on{color:var(--text);border-color:var(--accent2);background:linear-gradient(135deg,rgba(232,62,159,.12),rgba(99,91,255,.10))}
+#trend svg,#hist svg{width:100%;height:auto;display:block}#trend circle{cursor:pointer;stroke:var(--panel);stroke-width:1.5}
+</style>
+</head>
+<body>
+<noscript>ReflexX needs JavaScript to run.</noscript>
+<div class="shell">
+  <header class="appbar">
+    <div class="brand"><div class="logo">RX</div><div><h1>REFLEXX</h1><small id="greet">Reaction Lab</small></div></div>
+    <div class="xp" aria-label="Player level"><b id="lv">Lv 1</b><div class="bar"><i id="xpfill"></i></div></div>
+  </header>
+  <main>
+  <section class="view active" id="v-play">
+    <div class="chips" role="group" aria-label="Game mode"><button class="mode active" aria-pressed="true" data-mode="classic"><strong>Classic</strong></button><button class="mode" aria-pressed="false" data-mode="random"><strong>Random</strong></button><button class="mode" aria-pressed="false" data-mode="precision"><strong>Precision</strong></button><button class="mode" aria-pressed="false" data-mode="challenge"><strong>Challenge</strong></button><button class="mode" aria-pressed="false" data-mode="color"><strong>Color Rush</strong></button><button class="mode" aria-pressed="false" data-mode="reverse"><strong>Reverse</strong></button><button class="mode" aria-pressed="false" data-mode="custom"><strong>Custom</strong></button></div>
+    <div class="card section" id="customPanel" hidden><h3>Custom test</h3><div class="cust">
+      <label>Rounds (1–20)<input id="cRounds" type="number" inputmode="numeric" min="1" max="20"></label>
+      <label>False-start penalty<select id="cPen"><option value="0">None</option><option value="50">+50 ms</option><option value="100">+100 ms</option></select></label>
+      <label>Min delay (s)<input id="cMin" type="number" inputmode="decimal" step="0.5" min="0.5" max="8"></label>
+      <label>Max delay (s)<input id="cMax" type="number" inputmode="decimal" step="0.5" min="1" max="10"></label></div></div>
+    <section class="card game">
+    <div id="arena" class="arena ready" tabindex="0" role="button" aria-label="Reaction area. Press Space or tap when the signal appears.">
+      <div class="center">
+        <div id="signal" class="signal">⚡</div>
+        <h3 id="title" role="status" aria-live="polite">Ready?</h3>
+        <p id="subtitle">Press start, then react when the signal turns green.</p>
+        <button id="start" class="start">START TEST</button>
+        <div class="hint" id="hint">Tip: press Space to start and react</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><label>Mode best</label><b id="best">—</b></div>
+      <div class="stat"><label>Average</label><b id="avg">—</b></div>
+      <div class="stat"><label>Last</label><b id="last">—</b></div>
+      <div class="stat"><label>Round</label><b id="round">0/1</b></div>
+      <div class="stat"><label>Level</label><b id="level">—</b></div>
+      <div class="stat"><label>Streak</label><b id="streak">0</b></div>
+    </div>
+  </section>
+    <div class="card section today"><div class="row2"><span>Today’s goal · 5 runs</span><b id="todayTxt">0/5</b></div><div class="bar big"><i id="todayFill"></i></div></div>
+  </section>
+  <section class="view" id="v-stats">
+    <div class="card section"><h3>Performance trend</h3>
+      <div class="ctl"><select id="chartMode" aria-label="Mode filter"><option value="all">All modes</option><option value="classic">Classic</option><option value="random">Random</option><option value="precision">Precision</option><option value="challenge">Challenge</option><option value="color">Color Rush</option><option value="reverse">Reverse</option><option value="custom">Custom</option></select>
+      <div class="seg" id="chartRange"><button data-r="10">10</button><button data-r="20" class="on">20</button><button data-r="50">50</button></div></div>
+      <div id="trend"></div><div class="tip" id="trendInfo"></div><div class="tip" id="trendRead"></div>
+      <h3 style="margin-top:14px">Reaction distribution</h3><div id="hist"></div></div>
+    <div class="card section" style="margin-top:12px"><h3>Insights</h3>
+      <div class="insights">
+        <div class="ins"><label>Total runs</label><b id="iRuns">0</b></div>
+        <div class="ins"><label>All-time avg</label><b id="iAvg">—</b></div>
+        <div class="ins"><label>Consistency (±)</label><b id="iSd">—</b></div>
+        <div class="ins"><label>False starts</label><b id="iFalse">0</b></div>
+      </div>
+      <div class="tip" id="rank">Complete a run to see how you compare.</div>
+      <svg class="spark" id="spark" viewBox="0 0 200 60" preserveAspectRatio="none"></svg>
+      <div class="tip" style="margin-top:10px"><b>&lt;200</b> elite · <b>200–250</b> very quick · <b>250–300</b> solid · <b>300+</b> train more.</div>
+    </div>
+    <div class="card section" style="margin-top:12px"><h3>Personal bests</h3><div id="pbs"></div></div>
+    <div class="card section" style="margin-top:12px"><h3>Recent runs</h3><div id="history"></div></div>
+  </section>
+  <section class="view" id="v-trophies">
+    <div class="card section"><h3>Achievements <span class="tip" id="achCount"></span></h3><div class="ach" id="ach"></div></div>
+  </section>
+  <section class="view" id="v-settings">
+    <div class="sect">Profile</div>
+    <div class="list"><label class="rowin">Player name<input id="pname" maxlength="16" placeholder="Your name" autocomplete="off"></label></div>
+    <div class="sect">Preferences</div>
+    <div class="list"><button id="theme" class="rowbtn"></button><button id="sound" class="rowbtn"></button><button id="haptic" class="rowbtn"></button><button id="install" class="rowbtn">⬇ Install app</button></div>
+    <div class="sect">Data</div>
+    <div class="list"><button id="share" class="rowbtn">📤 Share best score</button><button id="export" class="rowbtn">💾 Export runs (JSON)</button><button id="clear" class="rowbtn">🗑 Clear all data</button></div>
+    <div class="sect">About</div>
+    <div class="tip" style="padding:0 4px">ReflexX v1.1 · Reaction Lab · data is saved on this device only.</div>
+  </section>
+  </main>
+</div>
+<nav class="tabbar" role="tablist"><div class="in"><button class="tabbtn on" data-tab="play" role="tab" aria-selected="true"><i>🎯</i>Play</button><button class="tabbtn" data-tab="stats" role="tab" aria-selected="false"><i>📊</i>Stats</button><button class="tabbtn" data-tab="trophies" role="tab" aria-selected="false"><i>🏆</i>Trophies</button><button class="tabbtn" data-tab="settings" role="tab" aria-selected="false"><i>⚙️</i>Settings</button></div></nav>
+<div class="toast" id="toast"></div>
+<script>
+/* ReflexX core: pure scoring helpers (no DOM) so they can be unit-tested. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.ReflexCore = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const stdDev = a => { const m = mean(a); return Math.sqrt(mean(a.map(x => (x - m) ** 2))); };
+  const level = ms => !ms ? '\u2014' : ms < 180 ? 'S' : ms < 220 ? 'A+' : ms < 260 ? 'A' : ms < 300 ? 'B' : ms < 350 ? 'C' : 'D';
+  /* Approximate share of people slower than `ms`, assuming N(273, 40). */
+  function percentile(ms) {
+    const z = (273 - ms) / (40 * Math.SQRT2), t = 1 / (1 + .3275911 * Math.abs(z));
+    const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - .284496736) * t + .254829592) * t * Math.exp(-z * z);
+    return Math.round(50 * (1 + (z < 0 ? -y : y)));
+  }
+  /* Final score of a run: mean of rounds + penalty per false start (Precision = 50 ms, Custom = user value). */
+  function scoreRun(rounds, mode, falseStarts, penaltyMs) {
+    if (!rounds.length) return 0;
+    const p = penaltyMs !== undefined ? penaltyMs : (mode === 'precision' ? 50 : 0);
+    return Math.round(mean(rounds)) + p * (falseStarts || 0);
+  }
+  /* Positive = improving (first half slower than second half), in ms. */
+  function trendDelta(s) { if (s.length < 4) return 0; const h = Math.floor(s.length / 2); return Math.round(mean(s.slice(0, h)) - mean(s.slice(-h))); }
+  function histogram(v, bin) {
+    if (!v.length) return { start: 0, bins: [] };
+    const start = Math.floor(Math.min(...v) / bin) * bin, n = Math.floor((Math.max(...v) - start) / bin) + 1, bins = Array(n).fill(0);
+    v.forEach(x => bins[Math.floor((x - start) / bin)]++);
+    return { start, bins };
+  }
+  const isAnticipation = ms => ms < 100;
+  return { mean, stdDev, level, percentile, scoreRun, isAnticipation, trendDelta, histogram };
+});
+</script>
+<script>
+if(typeof ReflexCore==="undefined"){document.body.innerHTML="<p style=\"padding:24px;font-family:sans-serif\">ReflexX could not load js/core.js. Upload the js folder next to index.html.</p>";throw new Error("ReflexCore missing")}
+const {mean,stdDev,level,percentile,scoreRun,isAnticipation,trendDelta,histogram}=ReflexCore;
+const $=id=>document.getElementById(id);
+const arena=$('arena'),signal=$('signal'),title=$('title'),subtitle=$('subtitle'),start=$('start');
+const COLORS={pink:'#e83e9f',violet:'#635bff',orange:'#f28b32',green:'#19a875'},NAMES=Object.keys(COLORS);
+const store={
+  get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let mode='classic',state='idle',timer=null,targetTimer=null,startedAt=0,rounds=[],challengeRound=0,streak=0,runFalse=0,targetColor='pink',audioCtx=null;
+let hapticOn=store.get('reflexxHaptic','on')!=='off';
+let soundOn=store.get('reflexxSound','on')!=='off';
+
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const runs=()=>store.get('reflexxRuns',[]).map(r=>({...r,mode:String(r.mode).toLowerCase(),score:Number(r.score)})).filter(r=>r.score>0);
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),1800)}
+function beep(f=700,d=.07){if(!soundOn)return;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;g.gain.value=.035;o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d)}catch(e){}}
+function buzz(p){if(!hapticOn)return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+
+function stats(){
+  const mb=runs().filter(r=>r.mode===mode).map(r=>r.score).concat(rounds);
+  const b=mb.length?Math.min(...mb):null,a=rounds.length?Math.round(mean(rounds)):null;
+  $('best').textContent=b?b+' ms':'—';$('avg').textContent=a?a+' ms':'—';
+  $('last').textContent=rounds.length?rounds[rounds.length-1]+' ms':'—';
+  $('round').textContent=multi()?Math.min(rounds.length,total())+'/'+total():(rounds.length?1:0)+'/1';
+  $('level').textContent=level(rounds.length?rounds[rounds.length-1]:b);$('streak').textContent=streak;
+}
+function insights(){
+  const h=runs(),f=store.get('reflexxFalse',0);
+  $('iRuns').textContent=h.length;$('iFalse').textContent=f;
+  if(!h.length){$('iAvg').textContent=$('iSd').textContent='—';$('rank').textContent='Complete a run to see how you compare.';$('spark').innerHTML='';return}
+  const s=h.map(r=>r.score),m=mean(s),sd=stdDev(s);
+  $('iAvg').textContent=Math.round(m)+' ms';$('iSd').textContent=s.length>1?'±'+Math.round(sd)+' ms':'—';
+  const p=percentile(h[0].score);
+  $('rank').textContent='Latest '+h[0].score+' ms — faster than roughly '+Math.max(1,Math.min(99,p))+'% of people (rough estimate; real results vary with device and screen).';
+  const pts=s.slice(0,20).reverse(),lo=Math.min(...pts),hi=Math.max(...pts),r=hi-lo||1;
+  $('spark').innerHTML='<polyline fill="none" stroke="var(--accent2)" stroke-width="2" vector-effect="non-scaling-stroke" points="'+pts.map((v,i)=>(pts.length>1?i*200/(pts.length-1):100)+','+(54-(v-lo)/r*48)).join(' ')+'"/>';
+}
+let custom=Object.assign({rounds:5,min:1,max:3,penalty:0},store.get('reflexxCustom',{}));
+const penaltyFor=()=>mode==='precision'?50:mode==='custom'?custom.penalty:0;
+const multi=()=>mode==='challenge'||mode==='custom';
+const total=()=>mode==='challenge'?5:mode==='custom'?custom.rounds:1;
+let chartMode='all',chartRange=20,lastChart=[];
+function renderCharts(){
+  let d=runs().slice().reverse();if(chartMode!=='all')d=d.filter(r=>r.mode===chartMode);d=d.slice(-chartRange);lastChart=d;
+  const T=$('trend'),Hh=$('hist');
+  if(d.length<2){T.innerHTML='<div class="empty">Complete at least 2 runs to see your trend.</div>';Hh.innerHTML='';$('trendInfo').textContent='';$('trendRead').textContent='';return}
+  const W=320,H=170,L=34,R=10,TP=10,B=22,s=d.map(r=>r.score),lo=Math.floor(Math.min(...s)/10)*10-10,hi=Math.ceil(Math.max(...s)/10)*10+10;
+  const x=i=>L+i*(W-L-R)/(d.length-1),y=v=>TP+(hi-v)/(hi-lo)*(H-TP-B),best=Math.min(...s),bi=s.indexOf(best),ma=s.map((_,i)=>mean(s.slice(Math.max(0,i-4),i+1)));
+  let g='';for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+3}" text-anchor="end" font-size="9" fill="var(--muted)">${Math.round(v)}</text>`}
+  T.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Reaction time trend, lower is better">${g}<polyline fill="none" stroke="var(--accent2)" stroke-width="1.5" opacity=".45" points="${s.map((v,i)=>x(i)+','+y(v)).join(' ')}"/><polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" points="${ma.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>${s.map((v,i)=>`<circle data-i="${i}" cx="${x(i)}" cy="${y(v)}" r="${i===bi?5.5:4}" fill="${i===bi?'var(--good)':'var(--accent2)'}"/>`).join('')}<text x="${W-R}" y="${H-5}" text-anchor="end" font-size="9" fill="var(--muted)">ms · lower is better · pink = 5-run average</text></svg>`;
+  const td=trendDelta(s);
+  $('trendInfo').textContent='Best '+best+' ms · Avg '+Math.round(mean(s))+' ms'+(d.length>=4?' · '+(td>0?'▲ improving by '+td+' ms':td<0?'▼ slower by '+(-td)+' ms':'steady'):'');
+  $('trendRead').textContent='Tap a point for details · green = best';
+  const all=d.flatMap(r=>r.rounds&&r.rounds.length?r.rounds:[r.score]),hs=histogram(all,25),mx=Math.max(...hs.bins),bw=(W-L-R)/hs.bins.length,st=Math.ceil(hs.bins.length/8);
+  Hh.innerHTML=`<svg viewBox="0 0 ${W} 100" role="img" aria-label="Reaction time distribution">${hs.bins.map((n,i)=>`<rect x="${L+i*bw+1}" y="${80-n/mx*70}" width="${Math.max(1,bw-2)}" height="${n/mx*70}" rx="2" fill="var(--accent2)" opacity=".8"/>${i%st===0?`<text x="${L+i*bw+bw/2}" y="94" text-anchor="middle" font-size="8" fill="var(--muted)">${hs.start+i*25}</text>`:''}`).join('')}</svg>`;
+}
+const MODE_LABELS={classic:'Classic',random:'Random',precision:'Precision',challenge:'Challenge',color:'Color Rush',reverse:'Reverse',custom:'Custom'};
+function renderPbs(){const h=runs();$('pbs').innerHTML=Object.keys(MODE_LABELS).map(m=>{const v=h.filter(r=>r.mode===m).map(r=>r.score);return `<div class="record"><span>${MODE_LABELS[m]}</span><b>${v.length?Math.min(...v)+' ms · '+level(Math.min(...v)):'—'}</b></div>`}).join('')}
+function renderHistory(){renderToday();renderPbs();renderCharts();
+  const h=runs();
+  $('history').innerHTML=h.length?h.slice(0,7).map((x,i)=>`<div class="record"><span>${i+1}. ${cap(x.mode)}${x.date?' · '+x.date:''}</span><b>${x.score} ms</b></div>`).join(''):'<div class="empty">No runs yet. Set your first record.</div>';
+  insights();
+}
+function setStartBtn(txt){start.style.display='inline-block';start.textContent=txt}
+function reset(t='Ready?',p='Press start to begin.'){
+  clearTimeout(timer);clearTimeout(targetTimer);state='idle';arena.className='arena ready';
+  signal.textContent='⚡';signal.style.background='';signal.style.color='';
+  title.textContent=t;subtitle.textContent=p;setStartBtn('START TEST');stats();
+}
+function setMode(m){
+  mode=m;document.querySelectorAll('.mode').forEach(b=>{b.classList.toggle('active',b.dataset.mode===m);b.setAttribute('aria-pressed',b.dataset.mode===m)});
+  rounds=[];challengeRound=0;streak=0;runFalse=0;
+  reset('Ready?',{custom:'Your rules: set rounds, delays and penalty above.',color:'Target color: prepare to match it.',reverse:'Green is a decoy. Tap only when red appears.',challenge:'Five rounds. Your average decides the result.',precision:'Every false start adds 50 ms to your score.'}[m]||'Press start, then react when the signal appears.');
+}
+function markGo(){startedAt=performance.now();requestAnimationFrame(()=>requestAnimationFrame(()=>{startedAt=performance.now()}))}
+function begin(){
+  if(['waiting','decoy','go'].includes(state))return;
+  if(multi()&&challengeRound>=total()){challengeRound=0;rounds=[]}
+  if(!multi()&&state==='result')rounds=[];
+  state='waiting';arena.className='arena wait';signal.textContent='…';signal.style.background='';signal.style.color='';
+  title.textContent='Get ready';start.style.display='none';
+  targetColor=NAMES[Math.floor(Math.random()*4)];
+  subtitle.textContent=mode==='reverse'?'Green is a decoy — wait for red.':mode==='color'?'Target: '+targetColor.toUpperCase():'Don’t tap yet.';
+  const min=mode==='custom'?custom.min*1000:mode==='random'?900:1000,max=mode==='custom'?custom.max*1000:mode==='random'?3300:3200;
+  timer=setTimeout(()=>{
+    if(mode==='reverse'){
+      state='decoy';arena.className='arena go';signal.textContent='●';title.textContent='WAIT';subtitle.textContent='Green is a decoy — do not tap.';beep(620);
+      targetTimer=setTimeout(()=>{state='go';markGo();arena.className='arena false';title.textContent='TAP RED';subtitle.textContent='Now!';beep(420,.11)},350+Math.random()*350);
+    }else if(mode==='color'){
+      state='decoy';const decoy=NAMES.filter(c=>c!==targetColor)[Math.floor(Math.random()*3)];
+      arena.className='arena go';signal.textContent='●';signal.style.background=COLORS[decoy];signal.style.color='#fff';title.textContent='WAIT';subtitle.textContent='Target: '+targetColor.toUpperCase();beep(600);
+      targetTimer=setTimeout(()=>{state='go';markGo();signal.style.background=COLORS[targetColor];title.textContent='TAP '+targetColor.toUpperCase();subtitle.textContent='Now!';beep(980,.11)},300+Math.random()*400);
+    }else{
+      state='go';markGo();arena.className='arena go';signal.textContent='⚡';title.textContent='TAP NOW';subtitle.textContent='Go!';beep(980,.11);
+    }
+  },Math.random()*(max-min)+min);
+}
+function falseStart(msg){
+  clearTimeout(timer);clearTimeout(targetTimer);const wasDecoy=state==='decoy';
+  state='false';streak=0;runFalse++;store.set('reflexxFalse',store.get('reflexxFalse',0)+1);insights();
+  beep(180,.14);buzz(120);arena.className='arena false';signal.textContent='×';signal.style.background='';signal.style.color='';
+  title.textContent=msg||(wasDecoy?'Decoy!':'Too early!');
+  subtitle.textContent=penaltyFor()>0?'+'+penaltyFor()+' ms penalty added to this run.':wasDecoy?'That was a decoy — wait for the target.':'Wait for the target signal.';
+  setStartBtn('TRY AGAIN');stats();
+}
+function react(ts){
+  if(state==='waiting'||state==='decoy'){falseStart();return}
+  if(state!=='go')return;
+  const now=performance.now(),tt=ts&&ts>startedAt-1000&&ts<=now+1?ts:now,ms=Math.max(1,Math.round(tt-startedAt));
+  if(isAnticipation(ms)){falseStart('Anticipated!');subtitle.textContent='Under 100 ms is faster than humanly possible — wait for the signal.';return}
+  beep(ms<250?1150:720,.06);buzz(15);rounds.push(ms);streak++;
+  title.textContent=ms+' ms';subtitle.textContent=ms<220?'Lightning fast.':ms<280?'Great reaction.':'Good run — chase the next record.';
+  arena.className='arena ready';signal.style.background='';signal.style.color='';signal.textContent=ms<250?'✓':'•';state='result';
+  if(multi()){challengeRound++;if(challengeRound<total())setStartBtn('NEXT ROUND');else{saveRun();setStartBtn('NEW CHALLENGE')}}
+  else{saveRun();setStartBtn('TRY AGAIN')}
+  stats();
+}
+function saveRun(){
+  if(!rounds.length)return;
+  const score=scoreRun(rounds,mode,runFalse,penaltyFor());
+  const h=runs(),prev=h.filter(r=>r.mode===mode).map(r=>r.score),record=!prev.length||score<Math.min(...prev);
+  h.unshift({score,mode,date:new Date().toLocaleDateString(),rounds:rounds.slice(),falseStarts:runFalse});
+  store.set('reflexxRuns',h.slice(0,100));runFalse=0;renderHistory();checkAch(score);addXp(score);
+  if(record){title.textContent='NEW BEST · '+cap(mode);subtitle.textContent=score+' ms'+(mode==='challenge'?' average':'')+' • '+level(score)+' level';beep(1320,.18);buzz([30,40,30])}
+}
+start.addEventListener('click',()=>{start.blur();if(multi()&&challengeRound>=total()){rounds=[];challengeRound=0}begin()});
+arena.addEventListener('pointerdown',e=>{if(!e.isPrimary||e.target.closest('button'))return;e.preventDefault();react(e.timeStamp)});
+arena.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('pointerdown',e=>{if(!e.isPrimary||!['waiting','decoy','go'].includes(state)||!$('v-play').classList.contains('active'))return;if(e.target.closest('#arena,.tabbar,.chips,.appbar,button,input,select,label'))return;e.preventDefault();react(e.timeStamp)});
+document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$('clear').addEventListener('click',()=>{if(confirm('Clear all saved runs and stats?')){localStorage.removeItem('reflexxRuns');localStorage.removeItem('reflexxFalse');localStorage.removeItem('reflexxAch');localStorage.removeItem('reflexxXp');renderXp();renderAch();renderHistory();stats()}});
+$('export').addEventListener('click',()=>{
+  const h=runs();if(!h.length)return toast('Nothing to export yet');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(h,null,2)],{type:'application/json'}));
+  a.download='reflexx-runs.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+});
+$('share').addEventListener('click',async()=>{
+  const h=runs();if(!h.length)return toast('Complete a run first');
+  const best=Math.min(...h.map(r=>r.score)),text=`⚡ ReflexX — my best reaction time is ${best} ms (${level(best)} level). Can you beat it?`;
+  try{if(navigator.share){await navigator.share({text});return}await navigator.clipboard.writeText(text);toast('Result copied')}catch(e){toast('Sharing unavailable')}
+});
+function applySound(){$('sound').textContent=soundOn?'🔊 Sound: On':'🔇 Sound: Off'}
+$('sound').addEventListener('click',()=>{soundOn=!soundOn;store.set('reflexxSound',soundOn?'on':'off');applySound()});
+function applyTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent='🌙 Theme: '+(t==='dark'?'Dark':'Light');document.querySelector('meta[name=theme-color]').content=t==='dark'?'#0e1320':'#eef2f7'}
+$('theme').addEventListener('click',()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';store.set('reflexxTheme',t);applyTheme(t)});
+window.addEventListener('blur',()=>{if(['waiting','decoy','go'].includes(state))reset('Paused','The test paused because the page lost focus.')});
+document.addEventListener('keydown',e=>{
+  if(e.code!=='Space'||e.repeat||e.target.tagName==='INPUT'||!$('v-play').classList.contains('active'))return;e.preventDefault();
+  if(state==='idle'||state==='result'||state==='false')begin();else react(e.timeStamp);
+});
+const ACH=[
+  {id:'first',i:'🎯',n:'First Run',t:c=>c.runs.length>=1},
+  {id:'s300',i:'🥉',n:'Under 300',t:c=>c.score<300},
+  {id:'s250',i:'🥈',n:'Under 250',t:c=>c.score<250},
+  {id:'s200',i:'🥇',n:'Under 200',t:c=>c.score<200},
+  {id:'s180',i:'👑',n:'S Rank',t:c=>c.score<180},
+  {id:'streak',i:'🔥',n:'5 Streak',t:()=>streak>=5},
+  {id:'chal',i:'🏁',n:'Challenger',t:c=>c.mode==='challenge'},
+  {id:'all',i:'🧭',n:'All Modes',t:c=>new Set(c.runs.map(r=>r.mode)).size>=6},
+  {id:'pro',i:'💪',n:'25 Runs',t:c=>c.runs.length>=25}
+];
+function renderAch(){
+  const got=store.get('reflexxAch',[]);
+  $('ach').innerHTML=ACH.map(a=>`<div class="badge-a${got.includes(a.id)?' on':''}"><i>${a.i}</i>${a.n}</div>`).join('');
+  $('achCount').textContent='· '+got.length+'/'+ACH.length;
+}
+function checkAch(score){
+  const got=store.get('reflexxAch',[]),ctx={score,mode,runs:runs()},fresh=ACH.filter(a=>!got.includes(a.id)&&a.t(ctx));
+  if(fresh.length){store.set('reflexxAch',got.concat(fresh.map(a=>a.id)));toast('🏆 Unlocked: '+fresh.map(a=>a.n).join(', '))}
+  renderAch();
+}
+function showTab(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='v-'+id));
+  document.querySelectorAll('.tabbtn').forEach(b=>{const on=b.dataset.tab===id;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+  if(id!=='play'&&['waiting','decoy','go'].includes(state))reset();window.scrollTo(0,0);buzz(8)}
+document.querySelectorAll('.tabbtn').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+function addXp(score){const g=20+Math.max(0,Math.round((300-score)/5)),before=lvl(store.get('reflexxXp',0));store.set('reflexxXp',store.get('reflexxXp',0)+g);renderXp();
+  if(lvl(store.get('reflexxXp',0))>before)setTimeout(()=>toast('⬆ Level up! You are now Lv '+lvl(store.get('reflexxXp',0))),1900)}
+const lvl=x=>Math.floor(Math.sqrt(x/60))+1;
+function renderXp(){const x=store.get('reflexxXp',0),L=lvl(x),lo=60*(L-1)**2,hi=60*L*L;$('lv').textContent='Lv '+L;$('xpfill').style.width=Math.round((x-lo)/(hi-lo)*100)+'%'}
+function renderToday(){const n=runs().filter(r=>r.date===new Date().toLocaleDateString()).length;$('todayTxt').textContent=Math.min(n,5)+'/5'+(n>=5?' ✓':'');$('todayFill').style.width=Math.min(n,5)*20+'%'}
+$('pname').addEventListener('input',e=>{store.set('reflexxName',e.target.value.trim());$('greet').textContent=e.target.value.trim()?'Hey, '+e.target.value.trim():'Reaction Lab'});
+$('haptic').addEventListener('click',()=>{hapticOn=!hapticOn;store.set('reflexxHaptic',hapticOn?'on':'off');applyHaptic();buzz(20)});
+function applyHaptic(){$('haptic').textContent=hapticOn?'📳 Haptics: On':'📴 Haptics: Off'}
+$('chartMode').addEventListener('change',e=>{chartMode=e.target.value;renderCharts()});
+$('chartRange').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;chartRange=+b.dataset.r;document.querySelectorAll('#chartRange button').forEach(x=>x.classList.toggle('on',x===b));renderCharts()});
+$('trend').addEventListener('click',e=>{const c=e.target.closest('circle');if(!c)return;const i=+c.dataset.i,r=lastChart[i];$('trendRead').textContent='#'+(i+1)+' · '+(MODE_LABELS[r.mode]||r.mode)+' · '+r.score+' ms'+(r.date?' · '+r.date:'')});
+function fillCustom(){$('cRounds').value=custom.rounds;$('cMin').value=custom.min;$('cMax').value=custom.max;$('cPen').value=custom.penalty}
+['cRounds','cMin','cMax','cPen'].forEach(id=>$(id).addEventListener('change',()=>{
+  custom.rounds=Math.min(20,Math.max(1,parseInt($('cRounds').value)||5));custom.min=Math.min(8,Math.max(.5,parseFloat($('cMin').value)||1));
+  custom.max=Math.min(10,Math.max(custom.min+.5,parseFloat($('cMax').value)||3));custom.penalty=+$('cPen').value;
+  store.set('reflexxCustom',custom);fillCustom();setMode('custom')}));
+{const _sm=setMode;setMode=function(m){_sm(m);$('customPanel').hidden=m!=='custom'}}
+let deferred=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('install').style.display='inline-block'});
+$('install').addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('install').style.display='none'});
+window.addEventListener('appinstalled',()=>toast('ReflexX installed'));
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+applyTheme(store.get('reflexxTheme',matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+fillCustom();applySound();applyHaptic();renderHistory();renderAch();renderXp();stats();{const n=store.get('reflexxName','');$('pname').value=n;if(n)$('greet').textContent='Hey, '+n}
+</script>
+</body>
+</html>
