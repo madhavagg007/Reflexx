@@ -101,3 +101,14 @@ h2{background:linear-gradient(120deg,var(--text),var(--accent2) 60%,var(--accent
 .tabbar .in{display:flex;max-width:620px;margin:auto}
 .tabbtn{flex:1;background:transparent;padding:6px 0;color:var(--muted);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px}
 .tabbtn i{font-style:normal;font-size:21px;transition:transform .2s}.tabbtn.on{color:var(--accent2);font-weight:700}.tabbtn.on i{transform:translateY(-2px) scale(1.12)}
+/* Charts, custom mode, touch */
+[hidden]{display:none!important}
+.arena{touch-action:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+.chips .mode,.start,.tabbtn{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#customPanel{margin-bottom:12px}.cust{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cust label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+.cust input,.cust select,#chartMode{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px;font:inherit;font-size:14px}
+.ctl{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:8px}
+.seg{display:flex;gap:4px}.seg button{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:12px;color:var(--muted)}
+.seg button.on{color:var(--text);border-color:var(--accent2);background:linear-gradient(135deg,rgba(232,62,159,.12),rgba(99,91,255,.10))}
+#trend svg,#hist svg{width:100%;height:auto;display:block}#trend circle{cursor:pointer;stroke:var(--panel);stroke-width:1.5}
