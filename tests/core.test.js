@@ -30,3 +30,11 @@ test('anticipation detection', () => {
   assert.equal(C.isAnticipation(99), true);
   assert.equal(C.isAnticipation(100), false);
 });
+test('custom penalty, trend and histogram', () => {
+  assert.equal(C.scoreRun([200], 'custom', 2, 100), 400);
+  assert.equal(C.trendDelta([300, 300, 250, 250]), 50);
+  assert.equal(C.trendDelta([250, 250, 300, 300]), -50);
+  assert.equal(C.trendDelta([250]), 0);
+  const h = C.histogram([210, 215, 260], 25);
+  assert.equal(h.start, 200); assert.deepEqual(h.bins, [2, 0, 1]);
+});
