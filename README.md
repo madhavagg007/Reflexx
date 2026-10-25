@@ -8,6 +8,9 @@ A reaction-time training game built with vanilla HTML, CSS and JavaScript (no de
 - App shell: bottom tab navigation (Play, Stats, Trophies, Settings), XP and levels, daily goal, player profile
 - 6 modes: Classic, Random, Precision (false starts add 50 ms), Challenge (5 rounds), Color Rush, Reverse
 - Accurate timing with `performance.now()`, plus anticipation detection (< 100 ms rejected)
+- Performance trend chart (5-run moving average, best marker, mode and range filters) and reaction-time distribution histogram
+- Custom mode: choose rounds, random-delay window and false-start penalty
+- Touch optimised: pointer events, event-timestamp timing, paint-synced start time, full-screen tap target, multi-touch and long-press guards
 - Per-mode personal bests, consistency (std. deviation), trend chart and a rough percentile estimate
 - 9 unlockable achievements and a streak counter
 - Dark/light theme, sound and vibration feedback, JSON export, share button

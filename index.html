@@ -22,7 +22,12 @@
   </header>
   <main>
   <section class="view active" id="v-play">
-    <div class="chips" role="group" aria-label="Game mode"><button class="mode active" aria-pressed="true" data-mode="classic"><strong>Classic</strong></button><button class="mode" aria-pressed="false" data-mode="random"><strong>Random</strong></button><button class="mode" aria-pressed="false" data-mode="precision"><strong>Precision</strong></button><button class="mode" aria-pressed="false" data-mode="challenge"><strong>Challenge</strong></button><button class="mode" aria-pressed="false" data-mode="color"><strong>Color Rush</strong></button><button class="mode" aria-pressed="false" data-mode="reverse"><strong>Reverse</strong></button></div>
+    <div class="chips" role="group" aria-label="Game mode"><button class="mode active" aria-pressed="true" data-mode="classic"><strong>Classic</strong></button><button class="mode" aria-pressed="false" data-mode="random"><strong>Random</strong></button><button class="mode" aria-pressed="false" data-mode="precision"><strong>Precision</strong></button><button class="mode" aria-pressed="false" data-mode="challenge"><strong>Challenge</strong></button><button class="mode" aria-pressed="false" data-mode="color"><strong>Color Rush</strong></button><button class="mode" aria-pressed="false" data-mode="reverse"><strong>Reverse</strong></button><button class="mode" aria-pressed="false" data-mode="custom"><strong>Custom</strong></button></div>
+    <div class="card section" id="customPanel" hidden><h3>Custom test</h3><div class="cust">
+      <label>Rounds (1–20)<input id="cRounds" type="number" inputmode="numeric" min="1" max="20"></label>
+      <label>False-start penalty<select id="cPen"><option value="0">None</option><option value="50">+50 ms</option><option value="100">+100 ms</option></select></label>
+      <label>Min delay (s)<input id="cMin" type="number" inputmode="decimal" step="0.5" min="0.5" max="8"></label>
+      <label>Max delay (s)<input id="cMax" type="number" inputmode="decimal" step="0.5" min="1" max="10"></label></div></div>
     <section class="card game">
     <div id="arena" class="arena ready" tabindex="0" role="button" aria-label="Reaction area. Press Space or tap when the signal appears.">
       <div class="center">
@@ -45,7 +50,12 @@
     <div class="card section today"><div class="row2"><span>Today’s goal · 5 runs</span><b id="todayTxt">0/5</b></div><div class="bar big"><i id="todayFill"></i></div></div>
   </section>
   <section class="view" id="v-stats">
-    <div class="card section"><h3>Insights</h3>
+    <div class="card section"><h3>Performance trend</h3>
+      <div class="ctl"><select id="chartMode" aria-label="Mode filter"><option value="all">All modes</option><option value="classic">Classic</option><option value="random">Random</option><option value="precision">Precision</option><option value="challenge">Challenge</option><option value="color">Color Rush</option><option value="reverse">Reverse</option><option value="custom">Custom</option></select>
+      <div class="seg" id="chartRange"><button data-r="10">10</button><button data-r="20" class="on">20</button><button data-r="50">50</button></div></div>
+      <div id="trend"></div><div class="tip" id="trendInfo"></div><div class="tip" id="trendRead"></div>
+      <h3 style="margin-top:14px">Reaction distribution</h3><div id="hist"></div></div>
+    <div class="card section" style="margin-top:12px"><h3>Insights</h3>
       <div class="insights">
         <div class="ins"><label>Total runs</label><b id="iRuns">0</b></div>
         <div class="ins"><label>All-time avg</label><b id="iAvg">—</b></div>
