@@ -12,11 +12,20 @@
     const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - .284496736) * t + .254829592) * t * Math.exp(-z * z);
     return Math.round(50 * (1 + (z < 0 ? -y : y)));
   }
-  /* Final score of a run: mean of rounds, plus 50 ms per false start in Precision mode. */
-  function scoreRun(rounds, mode, falseStarts) {
+  /* Final score of a run: mean of rounds + penalty per false start (Precision = 50 ms, Custom = user value). */
+  function scoreRun(rounds, mode, falseStarts, penaltyMs) {
     if (!rounds.length) return 0;
-    return Math.round(mean(rounds)) + (mode === 'precision' ? 50 * (falseStarts || 0) : 0);
+    const p = penaltyMs !== undefined ? penaltyMs : (mode === 'precision' ? 50 : 0);
+    return Math.round(mean(rounds)) + p * (falseStarts || 0);
+  }
+  /* Positive = improving (first half slower than second half), in ms. */
+  function trendDelta(s) { if (s.length < 4) return 0; const h = Math.floor(s.length / 2); return Math.round(mean(s.slice(0, h)) - mean(s.slice(-h))); }
+  function histogram(v, bin) {
+    if (!v.length) return { start: 0, bins: [] };
+    const start = Math.floor(Math.min(...v) / bin) * bin, n = Math.floor((Math.max(...v) - start) / bin) + 1, bins = Array(n).fill(0);
+    v.forEach(x => bins[Math.floor((x - start) / bin)]++);
+    return { start, bins };
   }
   const isAnticipation = ms => ms < 100;
-  return { mean, stdDev, level, percentile, scoreRun, isAnticipation };
+  return { mean, stdDev, level, percentile, scoreRun, isAnticipation, trendDelta, histogram };
 });
